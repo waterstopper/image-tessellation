@@ -1,0 +1,24 @@
+{
+  "name": "tesselation",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Turn any image into a tessellated mosaic — square, triangle, hex, rhombille, tetromino, Penrose P3 and Voronoi tilings with a limited palette.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "typescript": "~5.9.2",
+    "vite": "^7.1.3",
+    "vitest": "^3.2.4"
+  },
+  "engines": {
+    "node": ">=20.19"
+  }
+}
