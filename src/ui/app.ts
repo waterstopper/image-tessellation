@@ -13,7 +13,7 @@ import {
   UPLOAD_SVG,
 } from './icons';
 
-const NUMBER_FORMAT = new Intl.NumberFormat('ru-RU');
+const NUMBER_FORMAT = new Intl.NumberFormat('en-US');
 const DEFAULT_SEED = 20261126;
 
 interface State {
@@ -32,7 +32,7 @@ interface State {
 
 function must<T extends Element>(selector: string): T {
   const element = document.querySelector<T>(selector);
-  if (!element) throw new Error(`Не найден элемент ${selector}`);
+  if (!element) throw new Error(`Element not found: ${selector}`);
   return element;
 }
 
@@ -40,12 +40,8 @@ function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
 }
 
-function plural(count: number, one: string, few: string, many: string): string {
-  const mod10 = count % 10;
-  const mod100 = count % 100;
-  if (mod10 === 1 && mod100 !== 11) return one;
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return few;
-  return many;
+function plural(count: number, one: string, many: string): string {
+  return count === 1 ? one : many;
 }
 
 const params = new URLSearchParams(window.location.search);
@@ -110,7 +106,7 @@ const ui = {
 };
 
 const context = ui.canvas.getContext('2d');
-if (!context) throw new Error('Canvas 2D недоступен');
+if (!context) throw new Error('Canvas 2D is not available');
 
 const colorControl = ui.colorLimit.closest<HTMLElement>('.control') ?? ui.colorLimit.parentElement;
 
@@ -182,7 +178,7 @@ function syncControls(): void {
   ui.unlimited.checked = state.unlimited;
 
   ui.grout.value = String(state.grout);
-  ui.groutValue.textContent = state.grout === 0 ? 'выкл.' : `${state.grout.toFixed(1)} px`;
+  ui.groutValue.textContent = state.grout === 0 ? 'off' : `${state.grout.toFixed(1)} px`;
   updateRangeFill(ui.grout);
 
   for (const card of ui.tilingGrid.querySelectorAll<HTMLButtonElement>('.tiling-card')) {
@@ -196,15 +192,15 @@ function syncControls(): void {
     ui.tilingHint.textContent = meta.description;
     ui.shuffleButton.disabled = !meta.random;
     ui.shuffleButton.title = meta.random
-      ? 'Другой случайный расклад'
-      : 'Для этой раскладки случайность не используется';
+      ? 'Shuffle layout'
+      : 'This pattern is deterministic';
   }
 
   ui.compareButton.disabled = !state.source;
   ui.compareButton.setAttribute('aria-pressed', String(state.showOriginal));
-  ui.compareButton.title = state.showOriginal ? 'Показать мозаику' : 'Показать оригинал';
+  ui.compareButton.title = state.showOriginal ? 'Show mosaic' : 'Show original';
   const compareLabel = ui.compareButton.querySelector<HTMLElement>('.button-label');
-  if (compareLabel) compareLabel.textContent = state.showOriginal ? 'Мозаика' : 'Оригинал';
+  if (compareLabel) compareLabel.textContent = state.showOriginal ? 'Mosaic' : 'Original';
 }
 
 function updateSourceUI(source: PreparedSource): void {
@@ -212,14 +208,14 @@ function updateSourceUI(source: PreparedSource): void {
   ui.sourceThumb.src = source.previewUrl;
   ui.sourceThumb.alt = source.name;
   ui.originalImage.src = source.previewUrl;
-  ui.originalImage.alt = `Оригинал: ${source.name}`;
+  ui.originalImage.alt = `Original: ${source.name}`;
   ui.originalImage.hidden = true;
   ui.canvas.hidden = false;
   ui.stageEmpty.hidden = true;
 
   const downscaled = source.width !== source.originalWidth || source.height !== source.originalHeight;
   ui.sourceDims.textContent = downscaled
-    ? `${source.width} × ${source.height} px · уменьшено`
+    ? `${source.width} × ${source.height} px · downscaled`
     : `${source.width} × ${source.height} px`;
   ui.sourceDims.title = `${source.originalWidth} × ${source.originalHeight} px`;
 
@@ -243,13 +239,11 @@ function updatePaletteUI(palette: PaletteResult): void {
 
   if (palette.limited) {
     ui.paletteCount.textContent = String(palette.palette.length);
-    ui.paletteBar.title = `k-means в OKLab. Средняя ошибка ${(palette.meanError * 100)
-      .toFixed(1)
-      .replace('.', ',')}%.`;
+    ui.paletteBar.title = `k-means in OKLab. Mean error ${(palette.meanError * 100).toFixed(1)}%.`;
   } else {
     ui.paletteCount.textContent = '∞';
     ui.paletteBar.title =
-      'Ограничение снято: каждый тайл получает собственный усреднённый цвет.';
+      'Unlimited: every tile keeps its own average color.';
   }
 }
 
@@ -257,10 +251,10 @@ function updateStats(): void {
   if (!state.source || !state.analysis || !state.palette) return;
   const count = state.analysis.tiles.length;
   const colors = state.palette.limited
-    ? `${state.palette.palette.length} ${plural(state.palette.palette.length, 'цвет', 'цвета', 'цветов')}`
-    : '∞ цветов';
-  ui.stats.textContent = `${NUMBER_FORMAT.format(count)} ${plural(count, 'тайл', 'тайла', 'тайлов')} · ${colors} · ${Math.max(1, state.lastTiming)} мс`;
-  ui.stats.title = `Тайл ${state.tileSize} px · источник ${state.source.width} × ${state.source.height} px`;
+    ? `${state.palette.palette.length} ${plural(state.palette.palette.length, 'color', 'colors')}`
+    : '∞ colors';
+  ui.stats.textContent = `${NUMBER_FORMAT.format(count)} ${plural(count, 'tile', 'tiles')} · ${colors} · ${Math.max(1, state.lastTiming)} ms`;
+  ui.stats.title = `Tile ${state.tileSize} px · source ${state.source.width} × ${state.source.height} px`;
 }
 
 function render(): void {
@@ -285,9 +279,9 @@ function setShowOriginal(show: boolean): void {
   ui.canvas.hidden = show;
   ui.originalImage.hidden = !show;
   ui.compareButton.setAttribute('aria-pressed', String(show));
-  ui.compareButton.title = show ? 'Показать мозаику' : 'Показать оригинал';
+  ui.compareButton.title = show ? 'Show mosaic' : 'Show original';
   const label = ui.compareButton.querySelector<HTMLElement>('.button-label');
-  if (label) label.textContent = show ? 'Мозаика' : 'Оригинал';
+  if (label) label.textContent = show ? 'Mosaic' : 'Original';
 }
 
 function clearTimers(): void {
@@ -335,7 +329,7 @@ async function buildTiles(): Promise<void> {
   const tilingStart = performance.now();
 
   try {
-    setBusy(true, 'Раскладываем тайлы…');
+    setBusy(true, 'Laying out tiles…');
     await nextPaint();
     if (token !== runToken) return;
 
@@ -348,7 +342,7 @@ async function buildTiles(): Promise<void> {
     const tilingMs = performance.now() - tilingStart;
 
     if (token !== runToken) return;
-    setBusy(true, 'Считаем средние цвета…');
+    setBusy(true, 'Averaging colors…');
     await nextPaint();
     if (token !== runToken) return;
 
@@ -356,11 +350,11 @@ async function buildTiles(): Promise<void> {
     if (token !== runToken) return;
     if (analysis.tiles.length === 0) {
       setBusy(false);
-      showToast('Не удалось разложить изображение тайлами');
+      showToast('Could not tile this image');
       return;
     }
 
-    setBusy(true, 'Подбираем палитру…');
+    setBusy(true, 'Matching the palette…');
     await nextPaint();
     if (token !== runToken) return;
 
@@ -384,7 +378,7 @@ async function buildTiles(): Promise<void> {
   } catch (error) {
     console.error(error);
     setBusy(false);
-    showToast('Что-то пошло не так при сборке мозаики');
+    showToast('Something went wrong while building the mosaic');
   }
 }
 
@@ -397,7 +391,7 @@ async function repalette(): Promise<void> {
 
   const token = ++runToken;
   try {
-    setBusy(true, 'Подбираем палитру…');
+    setBusy(true, 'Matching the palette…');
     await nextPaint();
     if (token !== runToken) return;
 
@@ -418,7 +412,7 @@ async function repalette(): Promise<void> {
   } catch (error) {
     console.error(error);
     setBusy(false);
-    showToast('Не удалось подобрать палитру');
+    showToast('Could not match the palette');
   }
 }
 
@@ -426,7 +420,7 @@ async function loadBlob(blob: Blob, name: string): Promise<boolean> {
   clearTimers();
   runToken += 1;
   const token = ++loadToken;
-  setBusy(true, 'Читаем изображение…');
+  setBusy(true, 'Reading the image…');
   try {
     const prepared = await prepareSource(blob, name);
     if (token !== loadToken) return false;
@@ -444,10 +438,10 @@ async function loadBlob(blob: Blob, name: string): Promise<boolean> {
     if (token !== loadToken) return false;
     console.error(error);
     setBusy(false);
-    showToast('Не удалось прочитать изображение');
+    showToast('Could not read the image');
     if (!state.source) {
       ui.stageEmpty.hidden = false;
-      ui.stats.textContent = 'Нет изображения';
+      ui.stats.textContent = 'No image';
     }
     return false;
   }
@@ -455,7 +449,7 @@ async function loadBlob(blob: Blob, name: string): Promise<boolean> {
 
 async function loadFile(file: File): Promise<void> {
   if (!file.type.startsWith('image/')) {
-    showToast('Нужен файл изображения: PNG, JPG или WebP');
+    showToast('Choose an image file: PNG, JPG, or WebP');
     return;
   }
   await loadBlob(file, file.name || 'clipboard.png');
@@ -475,9 +469,9 @@ async function loadSample(): Promise<void> {
     setBusy(false);
     if (!state.source) {
       ui.stageEmpty.hidden = false;
-      ui.stats.textContent = 'Нет изображения';
+      ui.stats.textContent = 'No image';
     }
-    showToast('Не удалось загрузить пример');
+    showToast('Could not load the demo');
   }
 }
 
@@ -513,7 +507,7 @@ async function downloadPng(): Promise<void> {
     setTimeout(() => URL.revokeObjectURL(url), 2000);
   } catch (error) {
     console.error(error);
-    showToast('Не получилось сохранить PNG');
+    showToast('Could not save the PNG');
   } finally {
     ui.downloadButton.disabled = false;
   }
@@ -673,7 +667,7 @@ function init(): void {
   buildTilingCards();
   syncControls();
   bindEvents();
-  setBusy(true, 'Загружаем пример…');
+  setBusy(true, 'Loading the demo…');
   void loadSample();
 }
 

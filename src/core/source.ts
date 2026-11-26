@@ -14,7 +14,7 @@ export async function prepareSource(blob: Blob, name: string): Promise<PreparedS
   const originalHeight = bitmap.height;
   if (originalWidth === 0 || originalHeight === 0) {
     bitmap.close();
-    throw new Error('Пустое изображение');
+    throw new Error('Empty image');
   }
 
   const scale = Math.min(1, MAX_SOURCE_DIMENSION / Math.max(originalWidth, originalHeight));
@@ -27,7 +27,7 @@ export async function prepareSource(blob: Blob, name: string): Promise<PreparedS
   const context = canvas.getContext('2d', { willReadFrequently: true });
   if (!context) {
     bitmap.close();
-    throw new Error('Canvas недоступен');
+    throw new Error('Canvas unavailable');
   }
 
   context.imageSmoothingEnabled = true;

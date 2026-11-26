@@ -1,44 +1,45 @@
-# Tesselation
+# Tessellation
 
-Превращает изображение в мозаику из однотонных тайлов. Загрузите PNG, JPG или WebP
-— приложение разложит картинку на квадраты, треугольники, шестиугольники, ромбы,
-тетромино, ромбы Пенроуза или ячейки Вороного и подберёт палитру.
+Turn any image into a mosaic of single-color tiles. Drop in a PNG, JPG, or WebP
+and the app will rebuild it from squares, triangles, hexagons, rhombi,
+tetrominoes, Penrose rhombs, or Voronoi cells — then pick a palette that keeps
+the result as close to the source as possible.
 
-Всё считается в браузере: файл не уходит на сервер.
+Everything runs in the browser: your image never leaves the device.
 
-![Пример: мозаика Пенроуза из sample.png](docs/preview.png)
+![Penrose P3 mosaic made from sample.png](docs/preview.png)
 
-Тетромино после локальных переклеек — без повторяющихся блоков и видимой сетки:
+Tetrominoes after local pair flips — no repeated blocks and no visible 8×8 grid:
 
-![Пример: тетромино](docs/tetromino-preview.png)
+![Tetromino mosaic](docs/tetromino-preview.png)
 
-## Возможности
+## Features
 
-- **7 типов мозаики**: квадратная сетка, треугольная, соты, ромбилль (Roman
-  rhombille), тетромино, Пенроуз P3 и ячейки Вороного.
-- **Зернистость** — размер тайлов от 8 до 80 px (относительно рабочей копии
-  изображения, которая масштабируется максимум до 1600 px).
-- **Лимит цветов** — от 1 до 40 цветов или режим без ограничения, когда каждый
-  тайл получает собственный средний цвет.
-- **Точный подбор цвета**: средний цвет тайла считается в линейном свете, а
-  палитра подбирается k-means в перцептивном пространстве OKLab.
-- **Экспорт PNG**, просмотр оригинала одним нажатием, перетаскивание файла,
-  вставка из буфера (⌘V / Ctrl+V).
-- Адаптивный интерфейс для десктопа и телефона. Демо-изображение загружается
-  автоматически при первом открытии.
+- **7 tessellation types**: square grid, triangular grid, hexagons, Roman
+  rhombille, tetrominoes, Penrose P3, and Voronoi cells.
+- **Tile size** from 8 to 80 px, relative to a working copy that is capped at
+  1600 px on the long side.
+- **Color limit** from 1 to 40 colors, or unlimited mode where every tile keeps
+  its own average color.
+- **Accurate color matching**: each tile's average is computed in linear light,
+  then the palette is chosen with k-means in perceptual OKLab space.
+- **PNG export**, one-click comparison with the original, drag and drop, and
+  paste from the clipboard (⌘V / Ctrl+V).
+- Responsive desktop and mobile UI. A demo image loads automatically on first
+  visit.
 
-## Быстрый старт
+## Quick start
 
-Нужен Node.js 20.19+.
+Requires Node.js 20.19+.
 
 ```bash
 npm install
 npm run dev
 ```
 
-Vite покажет адрес локального сервера (по умолчанию `http://127.0.0.1:5173`).
+Vite prints the local server URL (default: `http://127.0.0.1:5173`).
 
-Сборка и проверки:
+Build and checks:
 
 ```bash
 npm run build     # tsc --noEmit + vite build
@@ -48,72 +49,69 @@ npm test          # vitest
 
 ## GitHub Pages
 
-Да, проект полностью статический. В `vite.config.ts` стоит относительный
-`base: './'`, поэтому сборка работает и в корне домена, и в подпапке вида
+Yes — the project is fully static. `vite.config.ts` uses a relative `base: './'`,
+so the build works both at a domain root and under a project path such as
 `https://<user>.github.io/<repo>/`.
 
-Один раз:
+One-time setup:
 
-1. Запушьте проект в GitHub (workflow лежит в
-   [.github/workflows/deploy.yml](.github/workflows/deploy.yml)).
-2. В репозитории откройте **Settings → Pages → Build and deployment** и
-   выберите **Source: GitHub Actions**.
-3. Сделайте push в `master` или `main` (либо запустите workflow вручную через
-   **Actions → Deploy to GitHub Pages → Run workflow**).
+1. Push the project to GitHub. The workflow lives in
+   [.github/workflows/deploy.yml](.github/workflows/deploy.yml).
+2. In the repository, open **Settings → Pages → Build and deployment** and set
+   **Source: GitHub Actions**.
+3. Push to `master` or `main`, or run the workflow manually from
+   **Actions → Deploy to GitHub Pages → Run workflow**.
 
-Workflow сам выполнит `npm ci`, тесты, `npm run build` и опубликует содержимое
-`dist/`. Получившийся адрес будет показан в Actions и в настройках Pages.
+The workflow runs `npm ci`, the test suite, `npm run build`, and publishes
+`dist/`. The resulting URL is shown in Actions and in the Pages settings.
 
-Локально production-сборку можно проверить так:
+To check the production build locally:
 
 ```bash
 npm run build
 npx vite preview
 ```
 
-## Типы мозаики
+## Tiling types
 
-| Тип | Описание |
+| Type | Description |
 | --- | --- |
-| Квадраты | Классическая сетка, самый предсказуемый результат. |
-| Треугольники | Плотная сетка из равносторонних треугольников. |
-| Соты | Шестиугольники с площадью ячейки ≈ `tileSize²`. |
-| Ромбилль | Каждый шестиугольник расколот на три ромба 60°/120°. |
-| Тетромино | Случайная упаковка фигур I, O, T, S, Z, J, L из четырёх клеток; без повторяющихся блоков и видимой сетки. |
-| Пенроуз P3 | Толстые и тонкие ромбы, построенные как двойственная сетка де Брёйна. |
-| Вороной | Органические ячейки из дрожащей сетки seed-точек. |
+| Squares | The classic, most predictable grid. |
+| Triangles | A dense grid of equilateral triangles. |
+| Hexagons | Hexagonal cells, like a honeycomb. |
+| Rhombille | Roman mosaic: each hexagon is split into three 60°/120° rhombi. |
+| Tetromino | Random I, O, T, S, Z, J and L pieces; no repeated blocks or visible grid. |
+| Penrose P3 | Thick and thin rhombi built as the dual of a de Bruijn pentagrid. |
+| Voronoi | Organic cells generated from a jittered seed grid. |
 
-## Как это работает
+## How it works
 
-1. **Подготовка источника.** Изображение уменьшается так, чтобы большая сторона
-   была не больше 1600 px, и рисуется на белом фоне (прозрачность PNG
-   композитится с белым).
-2. **Генерация тайлов.** Каждая раскладка возвращает набор полигонов, покрывающих
-   прямоугольник с запасом. Полигоны обрезаются по границам изображения.
-3. **Средний цвет.** Для каждого тайла пиксели внутри полигона усредняются в
-   линейном RGB. Это важнее, чем кажется: среднее в sRGB даёт более грязные и
-   тёмные края на градиентах.
-4. **Квантование палитры.** Средние цвета переводятся в OKLab. При ограничении
-   палитры запускается взвешенный по площади k-means++ (до 40 кластеров), после
-   чего каждому тайлу назначается ближайший цвет палитры.
-5. **Рендер.** Тайлы заливаются своей палитрой на canvas; при желании
-   добавляются тонкие контуры, подчёркивающие рисунок раскладки.
+1. **Source preparation.** The image is downscaled so its long side is at most
+   1600 px, then drawn on white (PNG transparency is composited onto white).
+2. **Tile generation.** Each generator returns polygons that cover the image
+   rectangle with some margin. Polygons are clipped to the image bounds.
+3. **Average color.** Pixels inside each tile are averaged in linear RGB. This
+   matters: averaging in sRGB produces muddier, darker edges on gradients.
+4. **Palette quantization.** Tile averages are converted to OKLab. With a color
+   limit, an area-weighted k-means++ run (up to 40 clusters) picks the palette,
+   and every tile is assigned its nearest palette color.
+5. **Render.** Tiles are filled on canvas. Optional thin outlines make the
+   tessellation structure visible.
 
-## Параметры
+## Controls
 
-- **Зернистость** — целевая площадь тайла. У разных раскладок разная форма, но
-  средняя площадь держится около `tileSize²`, поэтому переключение типа мозаики
-  не меняет визуальный масштаб картинки радикально.
-- **Лимит цветов** — число кластеров k-means. При значении 2 получается
-  графичный постер, при 40 — почти фотографическая передача.
-- **Без ограничения** — палитра не квантуется; каждый тайл получает свой
-  усреднённый цвет.
-- **Контуры тайлов** — ширина обводки в пикселях. `0` отключает контуры и даёт
-  максимально близкое к исходнику изображение.
+- **Tile size** — target tile area. Different patterns have different shapes,
+  but their average area stays near `tileSize²`, so switching patterns does not
+  radically change the visual scale.
+- **Color limit** — the number of k-means clusters. `2` gives a graphic poster
+  look; `40` is close to photographic.
+- **Unlimited** — skip quantization and give every tile its own average color.
+- **Tile outlines** — outline width in pixels. `0` disables outlines and keeps
+  the result as close to the source image as possible.
 
-## URL-параметры
+## URL parameters
 
-Настройки можно передать ссылкой — удобно для демонстраций и скриншотов:
+Settings can be shared as a link — useful for demos and screenshots:
 
 ```text
 /?type=penrose&tile=24&colors=12&seed=20261126&grout=0.8
@@ -122,55 +120,55 @@ npx vite preview
 - `type`: `square`, `triangle`, `hexagon`, `rhombille`, `tetromino`, `penrose`,
   `voronoi`;
 - `tile`: 8–80;
-- `colors`: 1–40 или `0` для режима без ограничения;
-- `seed`: целое число для случайных раскладок;
+- `colors`: 1–40, or `0` for unlimited mode;
+- `seed`: integer used by the random patterns;
 - `grout`: 0–2.4.
 
-## Структура проекта
+## Project structure
 
 ```text
-index.html              разметка интерфейса
-src/main.ts             точка входа
-src/ui/app.ts           состояние приложения, события, пайплайн рендера
-src/ui/icons.ts         SVG-иконки раскладок
-src/core/geometry.ts    полигоны, клиппинг, RNG, контуры тетромино
+index.html              interface markup
+src/main.ts             entry point
+src/ui/app.ts           application state, events, render pipeline
+src/ui/icons.ts         SVG icons for the tiling cards
+src/core/geometry.ts    polygons, clipping, RNG, tetromino outlines
 src/core/color.ts       sRGB ↔ linear RGB ↔ OKLab
-src/core/analyze.ts     обрезка тайлов и средний цвет по пикселям
-src/core/palette.ts     взвешенный k-means++ и назначение цветов
-src/core/render.ts      отрисовка мозаики на canvas
-src/core/source.ts      загрузка и подготовка изображения
-src/tilings/            генераторы всех семи раскладок
-tests/                  vitest: покрытие, геометрия, палитра, Пенроуз
-docs/preview.png        скриншот для README
-legacy-template/        исходный html-template, сохранён без изменений
+src/core/analyze.ts     tile clipping and per-pixel average color
+src/core/palette.ts     weighted k-means++ and color assignment
+src/core/render.ts      canvas mosaic renderer
+src/core/source.ts      image loading and source preparation
+src/tilings/            generators for all seven tilings
+tests/                  vitest: coverage, geometry, palette, Penrose
+docs/preview.png        Penrose screenshot for this README
+docs/tetromino-preview.png  tetromino screenshot for this README
+legacy-template/        original html-template, preserved unchanged
 ```
 
-## Тесты
+## Tests
 
 ```bash
 npm test
 ```
 
-Тесты проверяют:
+The suite currently has 49 tests. It verifies:
 
-- что каждая раскладка покрывает прямоугольник без дырок и наложений;
-- что площадь обрезанных тайлов совпадает с площадью изображения;
-- геометрию контуров тетромино и отсутствие повторяющейся сетки 8×8;
-- отношение толстых и тонких ромбов Пенроуза (≈ φ);
-- корректность преобразований sRGB ↔ linear RGB ↔ OKLab;
-- что k-means не превышает лимит цветов и стабилен при одном seed.
+- that every tiling covers the rectangle without holes or overlaps;
+- that the total area of clipped tiles matches the image area;
+- tetromino outline geometry and the absence of a repeating 8×8 grid;
+- the thick/thin rhomb ratio in Penrose P3 (≈ φ);
+- sRGB ↔ linear RGB ↔ OKLab conversions;
+- that k-means respects the color limit and is deterministic for a fixed seed.
 
-## Ограничения и заметки
+## Notes and limitations
 
-- Рабочая копия ограничена 1600 px по большей стороне — это компромисс между
-  качеством и скоростью. Исходное соотношение сторон сохраняется.
-- Тетромино собираются за два шага: быстрые точные покрытия блоков 8×8, затем
-  тысячи локальных переклеек пар соседних фигур, в том числе через границы
-  блоков. Это убирает повторяющийся рисунок и видимую сетку, сохраняя полное
-  покрытие без щелей.
-- Пенроуз строится через пятисеточный метод де Брёйна; смещения выбираются
-  детерминированно от seed, поэтому «Перемешать» меняет патч целиком.
-- Прозрачные PNG композитятся на белом фоне: тайл должен иметь непрозрачный
-  цвет.
-- Внешних runtime-зависимостей нет: только Vite, TypeScript и Vitest для
-  разработки.
+- The working copy is capped at 1600 px on the long side — a trade-off between
+  quality and speed. The original aspect ratio is preserved.
+- Tetrominoes are built in two stages: fast exact covers of 8×8 blocks, then
+  thousands of local pair flips, including flips across block borders. This
+  removes the repeating pattern and the visible grid while preserving exact
+  coverage.
+- Penrose P3 uses de Bruijn's pentagrid construction. Offsets are derived
+  deterministically from the seed, so **Shuffle** replaces the whole patch.
+- Transparent PNGs are composited onto white; every tile needs an opaque color.
+- There are no runtime dependencies — only Vite, TypeScript, and Vitest for
+  development.
